@@ -1,32 +1,21 @@
-# React + TypeScript + Vite
+# StyleMate AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Deploy to Vercel
 
-Currently, two official plugins are available:
+Import the repository into Vercel and set the **Root Directory** to the repository root (the folder containing `vercel.json`). The root Vercel configuration builds the Vite app from `frontend` and routes `/api/*` and `/uploads/*` to the FastAPI function in `api/index.py`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Configure these Vercel environment variables before deploying:
 
-## React Compiler
+- `SECRET_KEY`: a long, random secret used to sign authentication tokens.
+- `DATABASE_URL`: a PostgreSQL connection URL from a hosted provider such as Neon or Supabase. Use a URL with SSL enabled (for example `postgresql://...?...sslmode=require`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The app falls back to SQLite in `/tmp` if `DATABASE_URL` is omitted on Vercel. That fallback is only for a quick deployment check: serverless temporary storage is not durable, so user accounts and wardrobe data can disappear. Set a hosted PostgreSQL URL for a usable multi-user deployment.
 
-## Expanding the Oxlint configuration
+Uploads are stored in the function's temporary directory on Vercel and are not durable across deployments or function instances. Use persistent object storage for production wardrobe images.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Local development
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+- Frontend: `cd frontend; npm install; npm run dev`
+- Backend: `cd backend; ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000`
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The frontend uses `/api` by default; Vite proxies it to the local API at `http://localhost:8000`.
